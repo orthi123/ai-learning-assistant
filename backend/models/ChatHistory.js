@@ -22,7 +22,7 @@ const chatHistorySchema = new mongoose.Schema({
             default: Date.now
         },
         relevantChunks: {
-            type: [Numbers],
+            type: [Number],
             default:[]
         }
     }]
