@@ -76,7 +76,7 @@ export const reviewFlashcard = async (req, res, next) => {
   }
 
 //Update review info-----
-flashcardSet.cards[cardIndex].lastReviewed= new Data();
+flashcardSet.cards[cardIndex].lastReviewed= new Date();
 flashcardSet.cards[cardIndex].reviewCount+=1;
 await flashcardSet.save();
 res.status(200).json({

@@ -13,6 +13,12 @@ if (!process.env.GEMINI_API_KEY) {
 }
 
 /**
+ * Model selection based on your preference
+ * gemini-2.5-flash is optimized for speed and high-volume tasks like flashcards.
+ */
+const MODEL_NAME = "gemini-2.5-flash";
+
+/**
  * Generate flashcards from text
  */
 export const generateFlashcards = async (text, count = 10) => {
@@ -30,7 +36,7 @@ ${text.substring(0, 15000)}`;
   try {
     const response = await ai
       .getGenerativeModel({
-        model: "gemini-1.5-flash-lite",
+        model: MODEL_NAME,
       })
       .generateContent(prompt);
 
@@ -94,7 +100,7 @@ ${text.substring(0, 15000)}`;
   try {
     const response = await ai
       .getGenerativeModel({
-        model: "gemini-1.5-flash-lite",
+        model: MODEL_NAME,
       })
       .generateContent(prompt);
 
@@ -159,7 +165,7 @@ ${text.substring(0, 20000)}`;
   try {
     const response = await ai
       .getGenerativeModel({
-        model: "gemini-1.5-flash-lite",
+        model: MODEL_NAME,
       })
       .generateContent(prompt);
 
@@ -191,7 +197,7 @@ Answer:`;
   try {
     const response = await ai
       .getGenerativeModel({
-        model: "gemini-1.5-flash-lite",
+        model: MODEL_NAME,
       })
       .generateContent(prompt);
 
@@ -216,7 +222,7 @@ ${context.substring(0, 10000)}`;
   try {
     const response = await ai
       .getGenerativeModel({
-        model: "gemini-1.5-flash-lite",
+        model: MODEL_NAME,
       })
       .generateContent(prompt);
 

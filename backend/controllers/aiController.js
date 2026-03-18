@@ -64,9 +64,19 @@ export const generateFlashcards = async (req, res, next) => {
 
 // @desc    Generate quiz from document
 // @route   POST /api/ai/generate-quiz
+// @access  Private
 export const generateQuiz = async (req, res, next) => {
   try {
-    const { documentId, numQuestions = 5 } = req.body;
+    // এখানে title যোগ করা হয়েছে (এটিই ভুল ছিল)
+    const { documentId, numQuestions = 5, title } = req.body;
+
+    if (!documentId) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide documentId",
+        statusCode: 400,
+      });
+    }
 
     const document = await Document.findOne({
       _id: documentId,
@@ -82,19 +92,25 @@ export const generateQuiz = async (req, res, next) => {
       });
     }
 
+    // Generate quiz using Gemini
     const questions = await geminiService.generateQuiz(
       document.extractedText,
       parseInt(numQuestions),
     );
 
+    // save to database
     const quiz = await Quiz.create({
       userId: req.user._id,
       documentId: document._id,
+      title: title || `${document.title} - Quiz`,
       questions: questions.map((q) => ({
         ...q,
         userAnswer: null,
         isCorrect: false,
       })),
+      totalQuestions: questions.length,
+      userAnswers: [],
+      score: 0,
     });
 
     res.status(201).json({
@@ -109,9 +125,18 @@ export const generateQuiz = async (req, res, next) => {
 
 // @desc    Generate document summary
 // @route   POST /api/ai/generate-summary
+// @access  Private
 export const generateSummary = async (req, res, next) => {
   try {
     const { documentId } = req.body;
+
+    if (!documentId) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide documentId",
+        statusCode: 400,
+      });
+    }
 
     const document = await Document.findOne({
       _id: documentId,
@@ -127,15 +152,18 @@ export const generateSummary = async (req, res, next) => {
       });
     }
 
+  //Generate summery using gemini---
     const summary = await geminiService.generateSummary(document.extractedText);
-
-    // Update document with summary
     document.summary = summary;
     await document.save();
 
     res.status(200).json({
       success: true,
-      data: summary,
+      data: {
+        documentId: document._id,
+        title: document.title,
+        summary,
+      },
       message: "Summary generated successfully",
     });
   } catch (error) {
@@ -145,6 +173,7 @@ export const generateSummary = async (req, res, next) => {
 
 // @desc    Chat with document
 // @route   POST /api/ai/chat
+// @access  Private
 export const chat = async (req, res, next) => {
   try {
     const { documentId, question } = req.body;
@@ -194,11 +223,16 @@ export const chat = async (req, res, next) => {
 
 // @desc    Explain concept from document
 // @route   POST /api/ai/explain-concept
+// @access  Private
 export const explainConcept = async (req, res, next) => {
   try {
     const { documentId, concept } = req.body;
 
-    const document = await Document.findOne({ _id: documentId });
+    // নিরাপত্তার জন্য userId যোগ করা হয়েছে
+    const document = await Document.findOne({
+      _id: documentId,
+      userId: req.user._id,
+    });
 
     if (!document) {
       return res.status(404).json({
@@ -225,6 +259,7 @@ export const explainConcept = async (req, res, next) => {
 
 // @desc    Get chat history for a document
 // @route   GET /api/ai/chat-history/:documentId
+// @access  Private
 export const getChatHistory = async (req, res, next) => {
   try {
     const { documentId } = req.params;
