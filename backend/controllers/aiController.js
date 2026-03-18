@@ -152,7 +152,7 @@ export const generateSummary = async (req, res, next) => {
       });
     }
 
-  //Generate summery using gemini---
+  //Generate summery using gemini----
     const summary = await geminiService.generateSummary(document.extractedText);
     document.summary = summary;
     await document.save();
