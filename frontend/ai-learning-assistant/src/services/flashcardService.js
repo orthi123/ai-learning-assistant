@@ -6,7 +6,6 @@ const getAllFlashcardSets = async () => {
     const response = await axiosInstance.get(
       API_PATHS.FLASHCARDS.GET_ALL_FLASHCARD_SETS,
     );
-    //
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: "Failed to fetch flashcard sets" };
@@ -46,7 +45,6 @@ const toggleStar = async (cardId) => {
     throw error.response?.data || { message: "Failed to star flashcards" };
   }
 };
-
 
 const deleteFlashcardSet = async (id) => {
   try {
