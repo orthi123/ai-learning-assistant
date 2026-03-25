@@ -156,14 +156,15 @@ const LoginPage = () => {
               </Link>
             </p>
           </div>
-
+        </div>
+       
           {/* Subtle footer text */}
           <p className="text-center text-xs text-slate-400 mt-6">
             By continuing, you agree to our Terms & Privacy Policy
           </p>
         </div>
       </div>
-    </div>
+   
   );
 };
 
