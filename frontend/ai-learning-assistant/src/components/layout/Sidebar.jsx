@@ -44,20 +44,22 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
           }`}
       >
         {/* Logo and Close button for mobile */}
-        <div className="flex items-center">
-          <div className="">
-            <div className="">
-              <BrainCircuit className="" size={20} strokeWidth={2.5} />
+
+        <div className="flex items-center justify-between h-16 px-5 border-b border-slate-200/60">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-linear-to-br from-emerald-400 to-teal-500 shadow-md shadow-emerald-500/20">
+              <BrainCircuit className="text-white" size={20} strokeWidth={2.5} />
             </div>
-            <h1 className="">AI Learning Assistant</h1>
+            <h1 className="text-sm md:text-base font-bold text-slate-900 tracking-tight">AI Learning Assistant</h1>
           </div>
-          <button onClick={toggleSidebar} className="">
+          <button onClick={toggleSidebar} className="md:hidden text-slate-500 hover:text-slate-800">
             <X size={24} />
           </button>
         </div>
 
+         
         {/* Navigation */}
-        <nav className="">
+        <nav className="flex-1 px-3 py-6 space-y-1.5">
           {navLinks.map((link) => (
             <NavLink
               key={link.to}
@@ -88,9 +90,17 @@ const Sidebar = ({ isSidebarOpen, toggleSidebar }) => {
         </nav>
 
         {/* Logout Section */}
-        <div className="">
-          <button onClick={handleLogout} className="">
-            <LogOut size={18} strokeWidth={2.5} className="" />
+        <div className="px-3 py-4 border-t border-slate-200/60">
+          <button
+            onClick={handleLogout}
+            className="group flex items-center gap-3 w-full px-4 
+          py-2.5 text-sm font-semibold text-slate-700 hover:bg-red-50 hover:text-red-600 rounded-xl transition-all duration-200"
+          >
+            <LogOut
+              size={18}
+              strokeWidth={2.5}
+              className="transition-transform duration-200 group-hover:scale-110"
+            />
             Logout
           </button>
         </div>
