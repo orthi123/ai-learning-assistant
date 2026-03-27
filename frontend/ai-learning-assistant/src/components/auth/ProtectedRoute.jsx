@@ -1,20 +1,26 @@
 import React from "react";
 import { Navigate, Outlet } from "react-router-dom";
 import AppLayout from "../layout/AppLayout";
+import { useAuth } from "../../context/AuthContext"; // এই ইমপোর্টটি জরুরি
 
 const ProtectedRoute = () => {
-  const {isAuthenticated, loading}=useAuth()
- 
+  const { isAuthenticated, loading } = useAuth();
+
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p>Loading...</p>
+      </div>
+    );
   }
-  return isAuthenticated? (
-   <AppLayout>
-    <Outlet/>
-   </AppLayout>
-  ):(
+
+  return isAuthenticated ? (
+    <AppLayout>
+      <Outlet />
+    </AppLayout>
+  ) : (
     <Navigate to="/login" replace />
-  )
+  );
 };
 
 export default ProtectedRoute;
