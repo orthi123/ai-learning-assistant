@@ -4,6 +4,9 @@ import { ArrowLeft, ExternalLink, Trash2, FileText, X } from "lucide-react";
 import toast from "react-hot-toast";
 import documentService from "../../services/documentService";
 import Spinner from "../../components/common/Spinner";
+import PageHeader from "../../components/common/PageHeader";
+import Tabs from "../../components/common/Tabs";
+import ChatInterface from "../../components/chat/ChatInterface";
 
 const DocumentDetailPage = () => {
   const { id } = useParams();
@@ -89,7 +92,7 @@ const DocumentDetailPage = () => {
   };
 
   const renderChat = () => {
-    return "renderChat";
+    return <ChatInterface/>;
   };
   const renderAIActions = () => {
     return "renderAIActions";
@@ -116,7 +119,20 @@ const DocumentDetailPage = () => {
     return <div className="text-center p-8">Document not found.</div>;
   }
 
-  return <div>DocumentDetailPage</div>;
+  return (
+  
+      <div>
+        <div className="mb-4">
+          <Link to="/documents" className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
+            <ArrowLeft size={16} />
+            Back to Documents
+          </Link>
+        </div>
+        <PageHeader title={document.data.title} />
+        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+      </div>
+
+  );
 };
 
 export default DocumentDetailPage;
