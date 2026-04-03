@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Trash2, FileText, X } from "lucide-react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
 import toast from "react-hot-toast";
 import documentService from "../../services/documentService";
 import Spinner from "../../components/common/Spinner";
@@ -49,9 +49,7 @@ const DocumentDetailPage = () => {
 
   const renderContent = () => {
     if (loading) {
-      return;
-
-      <Spinner />;
+      return <Spinner />;
     }
 
     if (!document || !document.data || !document.data.filePath) {
@@ -59,7 +57,7 @@ const DocumentDetailPage = () => {
     }
 
     const pdfUrl = getPdfUrl();
-    // Your remaining JSX code goes here (e.g., PDF Viewer or Tabs)
+
     return (
       <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
         <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-300">
@@ -70,7 +68,7 @@ const DocumentDetailPage = () => {
             href={pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 fon-medium transition-colors"
+            className="inline-flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
             <ExternalLink size={16} />
             Open in new tab
@@ -78,10 +76,10 @@ const DocumentDetailPage = () => {
         </div>
         <div className="bg-gray-100 p-1">
           <iframe
-            src={pdfUrl}
+            src={`${pdfUrl}#toolbar=0`}
             className="w-full h-[70vh] bg-white border border-gray-300"
             title="PDF Viewer"
-            frameBorder="0"
+            sandbox="allow-scripts allow-same-origin"
             style={{
               colorScheme: "light",
             }}
@@ -92,7 +90,7 @@ const DocumentDetailPage = () => {
   };
 
   const renderChat = () => {
-    return <ChatInterface/>;
+    return <ChatInterface />;
   };
   const renderAIActions = () => {
     return "renderAIActions";
@@ -115,23 +113,25 @@ const DocumentDetailPage = () => {
   if (loading) {
     return <Spinner />;
   }
+
   if (!document) {
     return <div className="text-center p-8">Document not found.</div>;
   }
 
   return (
-  
-      <div>
-        <div className="mb-4">
-          <Link to="/documents" className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition-colors">
-            <ArrowLeft size={16} />
-            Back to Documents
-          </Link>
-        </div>
-        <PageHeader title={document.data.title} />
-        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div>
+      <div className="mb-4">
+        <Link
+          to="/documents"
+          className="inline-flex items-center gap-2 text-sm text-neutral-600 hover:text-neutral-900 transition-colors"
+        >
+          <ArrowLeft size={16} />
+          Back to Documents
+        </Link>
       </div>
-
+      <PageHeader title={document.data.title} />
+      <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+    </div>
   );
 };
 

@@ -19,14 +19,47 @@ const ChatInterface = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // ✅ ১. চ্যাট হিস্ট্রি লোড করার মাস্টার সলিউশন
   useEffect(() => {
     const fetchChatHistory = async () => {
       try {
         setInitialLoading(true);
         const response = await aiService.getChatHistory(documentId);
-        setHistory(response.data);
+
+        // আপনার সুবিধার্থে কনসোলে ডেটা দেখার অপশন রাখলাম
+        console.log("🔥 Backend Chat History Data:", response?.data);
+
+        let fetchedHistory = [];
+        if (Array.isArray(response?.data?.data)) {
+          fetchedHistory = response.data.data;
+        } else if (Array.isArray(response?.data)) {
+          fetchedHistory = response.data;
+        }
+
+        const formattedHistory = [];
+
+        fetchedHistory.forEach((msg) => {
+          // যদি ব্যাকএন্ড থেকে question এবং answer হিসেবে ডেটা আসে (আপনার Postman এর মতো)
+          if (msg.question) {
+            formattedHistory.push({ role: "user", content: msg.question });
+          }
+          if (msg.answer) {
+            formattedHistory.push({ role: "assistant", content: msg.answer });
+          }
+
+          // অথবা, যদি role এবং content/text হিসেবে ডেটা আসে
+          if (msg.role && !msg.question && !msg.answer) {
+            const role = msg.role === "model" ? "assistant" : msg.role;
+            let content = msg.content || msg.text || msg.message || "";
+            if (!content && msg.parts) content = msg.parts[0]?.text || "";
+            formattedHistory.push({ role, content });
+          }
+        });
+
+        setHistory(formattedHistory);
       } catch (error) {
         console.error("Failed to fetch chat history:", error);
+        setHistory([]);
       } finally {
         setInitialLoading(false);
       }
@@ -39,6 +72,7 @@ const ChatInterface = () => {
     scrollToBottom();
   }, [history]);
 
+  // ✅ ২. নতুন মেসেজ পাঠানোর সলিউশন
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -54,12 +88,21 @@ const ChatInterface = () => {
 
     try {
       const response = await aiService.chat(documentId, userMessage.content);
+
       const assistantMessage = {
         role: "assistant",
-        content: response.data.answer,
+        // Postman-এর ডেটা স্ট্রাকচার অনুযায়ী answer খুঁজে বের করা
+        content:
+          response?.data?.data?.answer ||
+          response?.data?.answer ||
+          "No response received.",
         timestamp: new Date(),
-        relevantChunks: response.data.relevantChunks,
+        relevantChunks:
+          response?.data?.data?.relevantChunks ||
+          response?.data?.relevantChunks ||
+          [],
       };
+
       setHistory((prev) => [...prev, assistantMessage]);
     } catch (error) {
       console.error("Chat error:", error);
@@ -75,13 +118,46 @@ const ChatInterface = () => {
   };
 
   const renderMessage = (msg, index) => {
-    return "renderMessage";
+    const isUser = msg.role === "user";
+    return (
+      <div
+        key={index}
+        className={`flex items-start gap-3 my-4 ${isUser ? "justify-end" : ""}`}
+      >
+        {!isUser && (
+          <div className="w-9 h-9 rounded-xl bg-linear-to-br from-emerald-400 to-teal-500 shadow-lg shadow-emerald-500/25 flex items-center justify-center shrink-0">
+            <Sparkles className="w-4 h-4 text-white" strokeWidth={2} />
+          </div>
+        )}
+        <div
+          className={`max-w-lg p-4 rounded-2xl shadow-sm ${
+            isUser
+              ? "bg-linear-to-br from-emerald-500 to-teal-500 text-white rounded-br-md"
+              : "bg-white border border-slate-200/60 text-slate-800 rounded-bl-md"
+          }`}
+        >
+          {isUser ? (
+            <p className="text-sm leading-relaxed">{msg?.content || "..."}</p>
+          ) : (
+            <div className="prose prose-sm max-w-none prose-slate">
+              {/* ✅ ৩. undefined ডেটা রেন্ডার ঠেকানোর সেফটি */}
+              <MarkdownRenderer content={msg?.content || "..."} />
+            </div>
+          )}
+        </div>
+        {isUser && (
+          <div className="w-9 h-9 rounded-xl bg-linear-to-br from-slate-200 to-slate-300 flex items-center justify-center text-slate-700 font-semibold text-sm shrink-0 shadow-sm">
+            {user?.username?.charAt(0).toUpperCase() || "U"}
+          </div>
+        )}
+      </div>
+    );
   };
 
   if (initialLoading) {
     return (
       <div className="flex flex-col h-[70vh] bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl items-center justify-center shadow-xl shadow-slate-200/50">
-        <div className="w-14 h-14  rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4">
+        <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4">
           <MessageSquare className="w-7 h-7 text-emerald-600" strokeWidth={2} />
         </div>
         <Spinner />
@@ -93,12 +169,12 @@ const ChatInterface = () => {
   }
 
   return (
-    <div className="flex flex-col h-[70vh] bg-white/80 backdrop:blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden">
+    <div className="flex flex-col h-[70vh] bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden">
       {/* Messages Area */}
       <div className="flex-1 p-6 overflow-y-auto bg-linear-to-br from-slate-50/50 via-white/50 to-slate-50/50 ">
         {history.length === 0 ? (
-          <div className="flex flex-col items-center justify-centerh-full text-center">
-            <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4 shadoe-lg shadow-emerald-500/10">
+          <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/10">
               <MessageSquare
                 className="w-8 h-8 text-emerald-600"
                 strokeWidth={2}
@@ -141,9 +217,26 @@ const ChatInterface = () => {
         )}
       </div>
 
-
-
       {/* Input area */}
+      <div className="p-5 border-t border-slate-200/60 bg-white/80">
+        <form onSubmit={handleSendMessage} className="flex items-center gap-3">
+          <input
+            type="text"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            placeholder="Ask a follow-up question..."
+            className="flex-1 h-12 px-4 border-2 border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-400 text-sm font-medium transition-all duration-200 focus:outline-none focus:border-emerald-500 focus:bg-white focus:shadow-lg focus:shadow-emerald-500/10"
+            disabled={loading}
+          />
+          <button
+            type="submit"
+            disabled={loading || !message.trim()}
+            className="shrink-0 w-12 h-12 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 flex items-center justify-center"
+          >
+            <Send className="w-5 h-5" strokeWidth={2} />
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
