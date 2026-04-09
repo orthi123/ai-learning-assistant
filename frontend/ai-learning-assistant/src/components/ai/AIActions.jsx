@@ -112,9 +112,14 @@ const AIActions = () => {
             <form onSubmit={handleExplainConcept}>
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-linear-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-                  <Lightbulb className="w-4 h-4 text-amber-600" strokeWidth={2} />
+                  <Lightbulb
+                    className="w-4 h-4 text-amber-600"
+                    strokeWidth={2}
+                  />
                 </div>
-                <h4 className="font-semibold text-slate-900">Explain a Concept</h4>
+                <h4 className="font-semibold text-slate-900">
+                  Explain a Concept
+                </h4>
               </div>
               <p className="text-sm text-slate-400 leading-relaxed mb-4">
                 Enter a topic or concept from the document to get a detailed
@@ -146,14 +151,19 @@ const AIActions = () => {
               </div>
             </form>
           </div>
-
         </div>
       </div>
 
-
-{/* -----------Result Modal--------------- */}
-
-
+      {/* Result Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={modalTitle}
+      >
+        <div className="max-h-[60vh] overflow-y-auto prose prose-sm max-w-none prose-slate">
+          <MarkdownRenderer content={modalContent} />
+        </div>
+      </Modal>
     </>
   ); 
 };
