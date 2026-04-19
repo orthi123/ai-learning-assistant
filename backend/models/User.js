@@ -34,11 +34,11 @@ const userSchema = new mongoose.Schema(
 );
 
 /**
- * পাসওয়ার্ড সেভ করার আগে হ্যাশ করার মিডলওয়্যার
- * সমাধান: async ব্যবহার করলে next() প্যারামিটার এবং কল করার দরকার নেই।
+ * passwrod save korar agee hashing---------
+ * solution async use,tahole next parameter call kora laagbe na-----
  */
 userSchema.pre("save", async function () {
-  // যদি পাসওয়ার্ড মডিফাই না হয়, তবে কাজ শেষ (return)
+  // jodi password modify na hoy tahole kaj sesh (return)
   if (!this.isModified("password")) {
     return;
   }
@@ -46,7 +46,7 @@ userSchema.pre("save", async function () {
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    // এখানে next() লাগবে না, ফাংশন শেষ হলেই Mongoose বুঝে নিবে।
+    
   } catch (error) {
     throw error; // এরর হলে সেটি থ্রো করে দিন
   }
@@ -56,7 +56,7 @@ userSchema.pre("save", async function () {
  * পাসওয়ার্ড ম্যাচ করার মেথড
  */
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  // Note: authController-এ ইউজার খোঁজার সময় .select("+password") ব্যবহার করতে ভুলবেন না
+  // Note: authController-user khujar somoy .select("+password") use korte hobe--------
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

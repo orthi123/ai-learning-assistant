@@ -14,7 +14,7 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 400;
   }
 
-  // Mongoose validation error
+  // Mongoose validation error(password chuto)
   if (err.name === "ValidationError") {
     message = Object.values(err.errors)
       .map((val) => val.message)
@@ -53,3 +53,5 @@ const errorHandler = (err, req, res, next) => {
 };
 
 export default errorHandler;
+
+//process.env.NODE_ENV === "development" stack trace user theke hide kora------------

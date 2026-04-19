@@ -83,3 +83,5 @@ export const getDashboard = async (req, res, next) => {
     next(error);
   }
 };
+
+//.ne operator-er mane ki?Uttor: $ne mane holo Not Equal। Amra check korchi completedAt field-ta jeno null na hoy।

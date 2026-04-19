@@ -1,10 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Star, RotateCcw } from "lucide-react";
 import { useNotifications } from "../../context/NotificationContext";
 
 const Flashcard = ({ flashcard, onToggleStar }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [activeCardId, setActiveCardId] = useState(flashcard?._id);
   const { addNotification } = useNotifications();
+
+  // যখনই flashcard._id পরিবর্তন হবে
+  useEffect(() => {
+    if (flashcard?._id !== activeCardId) {
+      // ১. আগে কার্ডটিকে সোজা করি
+      setIsFlipped(false);
+
+      // ২. সামান্য ডিলে দেই যেন সোজা হওয়ার অ্যানিমেশন শুরু হয়, তারপর ডাটা বদলাই
+      const timer = setTimeout(() => {
+        setActiveCardId(flashcard?._id);
+      }, 150); // এই গ্যাপটুকুতে উত্তর দেখা সম্ভব না কারণ কার্ড তখন সোজা হচ্ছে
+
+      return () => clearTimeout(timer);
+    }
+  }, [flashcard?._id, activeCardId]);
 
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
@@ -21,10 +37,14 @@ const Flashcard = ({ flashcard, onToggleStar }) => {
     }
   };
 
+  // যদি আইডি ম্যাচ না করে (অর্থাৎ নেক্সট ক্লিক করা হয়েছে কিন্তু কার্ড ঘুরছে),
+  // তবে আমরা পুরনো বা খালি ডাটা দেখাবো না, বরং লোডিং স্টেট বা আগের প্রশ্নটাই রাখবো
+  const currentDisplayCard = flashcard?._id === activeCardId ? flashcard : null;
+
   return (
     <div className="relative w-full h-72" style={{ perspective: "1000px" }}>
       <div
-        className={`relative w-full h-full transition-transform duration-500 transform-gpu`}
+        className={`relative w-full h-full transition-transform duration-500 transform-gpu cursor-pointer`}
         style={{
           transformStyle: "preserve-3d",
           transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
@@ -41,7 +61,7 @@ const Flashcard = ({ flashcard, onToggleStar }) => {
         >
           <div className="flex items-center justify-between">
             <div className="bg-slate-100 text-[10px] text-slate-600 rounded px-4 py-1 uppercase">
-              {flashcard?.difficulty}
+              {currentDisplayCard?.difficulty || flashcard?.difficulty}
             </div>
             <button
               onClick={handleStarClick}
@@ -61,7 +81,8 @@ const Flashcard = ({ flashcard, onToggleStar }) => {
 
           <div className="flex-1 flex items-center justify-center px-4 py-6">
             <p className="text-lg font-semibold text-slate-900 text-center leading-relaxed">
-              {flashcard.question}
+              {/* শুধুমাত্র তখনই প্রশ্ন দেখাবে যখন আইডি ম্যাচ করবে */}
+              {currentDisplayCard ? currentDisplayCard.question : "Loading..."}
             </p>
           </div>
 
@@ -80,7 +101,6 @@ const Flashcard = ({ flashcard, onToggleStar }) => {
             transform: "rotateY(180deg)",
           }}
         >
-          {/* এই কন্টেন্টটুকু যাতে উল্টো না দেখায় তাই ভেতরে একটি ডিভ দিয়ে আবার rotate করে দিলাম */}
           <div
             className="w-full h-full flex flex-col justify-between"
             style={{ transform: "rotateY(0deg)" }}
@@ -104,7 +124,8 @@ const Flashcard = ({ flashcard, onToggleStar }) => {
 
             <div className="flex-1 flex items-center justify-center px-4 py-6">
               <p className="text-base text-white text-center leading-relaxed font-medium">
-                {flashcard.answer}
+                {/* আইডি ম্যাচ না করা পর্যন্ত এখানে উত্তর রেন্ডার হবেই না */}
+                {currentDisplayCard ? currentDisplayCard.answer : ""}
               </p>
             </div>
 

@@ -6,5 +6,7 @@ const createNotification = async (userId, message, link) => {
     link,
   });
   await notification.save();
-  // এখানে Socket.io থাকলে রিয়েল-টাইম পুশ করা হয়
+  // ekhane Socket.io thakle real-time push kora hoy----------
+  //link maane kun notification e ashche sheta dekhanor jonno---------
+  //notification file laagbe naile notification ahriye jaabe------------
 };

@@ -167,3 +167,6 @@ try {
   next(error);
 }
 };
+
+//populate() -populate hocche MongoDB-te "Joining"-er moto. Eita chara amra sudhu Document ID dekhtam, kintu document-er title ba name dekhte petam na. User-er subidhar jonno amra related collection theke data populate kori.
+//findIndex keno use korle?Uttor: Jehetu ekta flashcard set-e onekgulo card thakte pare, findIndex amader thik oi position-ta bole dei jeta user review korche. Tarpor amra sudhu oi specific index-er value update kori.(Embedded Schema design)

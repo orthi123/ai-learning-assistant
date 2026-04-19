@@ -61,20 +61,19 @@ const QuizManager = ({ documentId }) => {
   };
 
   const handleConfirmDelete = async () => {
-      if (!selectedQuiz) return;
-      setDeleting(true);
-      try {
-        await quizService.deleteQuiz(selectedQuiz._id);
-        toast.success(`'${selectedQuiz.title || "Quiz"}' deleted.`);
-        setIsDeleteModalOpen(false);
-        setSelectedQuiz(null);
-        setQuizzes(quizzes.filter((q) => q._id !== selectedQuiz._id));
-      } catch (error) {
-        toast.error(error.message || "Failed to delete quiz.");
-      } finally {
-        setDeleting(false);
-      }
-
+    if (!selectedQuiz) return;
+    setDeleting(true);
+    try {
+      await quizService.deleteQuiz(selectedQuiz._id);
+      toast.success(`'${selectedQuiz.title || "Quiz"}' deleted.`);
+      setIsDeleteModalOpen(false);
+      setSelectedQuiz(null);
+      setQuizzes(quizzes.filter((q) => q._id !== selectedQuiz._id));
+    } catch (error) {
+      toast.error(error.message || "Failed to delete quiz.");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const renderQuizContent = () => {
@@ -157,7 +156,9 @@ const QuizManager = ({ documentId }) => {
         <div className="space-y-4">
           <p className="text-sm text-neutral-600">
             Are you sure you want to delete the quiz:
-            <span className="font-semibold text-neutral-900">{selectedQuiz?.title}</span>
+            <span className="font-semibold text-neutral-900">
+              {selectedQuiz?.title}
+            </span>
           </p>
           <div className="flex justify-end gap-2 pt-2">
             <Button

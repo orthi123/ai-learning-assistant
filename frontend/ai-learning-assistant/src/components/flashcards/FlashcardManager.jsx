@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Sparkles,
   Brain,
-  Trash,
 } from "lucide-react";
 import toast from "react-hot-toast";
 import moment from "moment";
@@ -86,9 +85,8 @@ const FlashcardManager = ({ documentId }) => {
 
     try {
       await flashcardService.reviewFlashcard(currentCard._id, index);
-      toast.success("Flashcard reviewed!");
     } catch (error) {
-      toast.error("Failed to review flashcard.");
+      console.error("Failed to review flashcard.");
     }
   };
 
@@ -96,7 +94,7 @@ const FlashcardManager = ({ documentId }) => {
     try {
       await flashcardService.toggleStar(cardId);
       const updatedSets = flashcardSets.map((set) => {
-        if (set._id === selectedSet._id) {
+        if (selectedSet && set._id === selectedSet._id) {
           const updatedCards = set.cards.map((card) =>
             card._id === cardId
               ? { ...card, isStarred: !card.isStarred }
@@ -107,8 +105,10 @@ const FlashcardManager = ({ documentId }) => {
         return set;
       });
       setFlashcardSets(updatedSets);
-      setSelectedSet(updatedSets.find((set) => set._id === selectedSet._id));
-      toast.success("Flashcard starred status updated!");
+      if (selectedSet) {
+        setSelectedSet(updatedSets.find((set) => set._id === selectedSet._id));
+      }
+      toast.success("Starred status updated!");
     } catch (error) {
       toast.error("Failed to update star status.");
     }
@@ -125,12 +125,12 @@ const FlashcardManager = ({ documentId }) => {
     setDeleting(true);
     try {
       await flashcardService.deleteFlashcardSet(setToDelete._id);
-      toast.success("Flashcard set deleted successfully!");
+      toast.success("Flashcard set deleted!");
       setIsDeleteModalOpen(false);
       setSetToDelete(null);
       fetchFlashcardSets();
     } catch (error) {
-      toast.error(error.message || "Failed to delete flashcard set.");
+      toast.error("Failed to delete flashcard set.");
     } finally {
       setDeleting(false);
     }
@@ -146,19 +146,17 @@ const FlashcardManager = ({ documentId }) => {
 
     return (
       <div className="space-y-8">
-        {/* Back Button */}
         <button
           onClick={() => setSelectedSet(null)}
           className="group inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors duration-200"
         >
           <ArrowLeft
-            className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200"
+            className="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200"
             strokeWidth={2}
           />
           Back to Sets
         </button>
 
-        {/* Flashcard Display */}
         <div className="flex flex-col items-center space-y-8">
           <div className="w-full max-w-2xl">
             <Flashcard
@@ -167,38 +165,29 @@ const FlashcardManager = ({ documentId }) => {
             />
           </div>
 
-          {/* Navigation Controls */}
           <div className="flex items-center gap-6">
             <button
               onClick={handlePrevCard}
               disabled={selectedSet.cards.length <= 1}
-              className="group flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-100"
+              className="group flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all duration-200 disabled:opacity-40"
             >
-              <ChevronLeft
-                className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-200"
-                strokeWidth={2.5}
-              />
+              <ChevronLeft className="w-4 h-4" strokeWidth={2.5} />
               Previous
             </button>
 
             <div className="px-4 py-2 bg-slate-50 rounded-lg border border-slate-200">
               <span className="text-sm font-semibold text-slate-700">
-                {currentCardIndex + 1}{" "}
-                <span className="text-slate-400 font-normal">/</span>{" "}
-                {selectedSet.cards.length}
+                {currentCardIndex + 1} / {selectedSet.cards.length}
               </span>
             </div>
 
             <button
               onClick={handleNextCard}
               disabled={selectedSet.cards.length <= 1}
-              className="group flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-slate-100"
+              className="group flex items-center gap-2 px-5 h-11 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm rounded-xl transition-all duration-200 disabled:opacity-40"
             >
               Next
-              <ChevronRight
-                className="w-4 h-4 group-hover:translate-x-0.5 transition-transform duration-200"
-                strokeWidth={2.5}
-              />
+              <ChevronRight className="w-4 h-4" strokeWidth={2.5} />
             </button>
           </div>
         </div>
@@ -214,35 +203,22 @@ const FlashcardManager = ({ documentId }) => {
         </div>
       );
     }
+
     if (flashcardSets.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center py-16 px-6">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-emerald-100 to-teal-100 mb-6">
-            <Brain className="w-8 h-8 text-emerald-600" strokeWidth={2} />
+          <div className="w-16 h-16 rounded-2xl bg-emerald-100 flex items-center justify-center mb-6">
+            <Brain className="w-8 h-8 text-emerald-600" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900 mb-2">
             No Flashcards Yet
           </h3>
-          <p className="text-sm text-slate-500 mb-8 text-center max-w-sm">
-            Generate flashcards from your document to start learning and
-            reinforce your knowledge.
-          </p>
           <button
             onClick={handleGenerateFlashcards}
             disabled={generating}
-            className="group inline-flex items-center gap-2 px-6 h-12 bg-linear-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-emerald-500/25 active:scale-95 disabled-opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            className="mt-6 px-6 h-12 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all"
           >
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-4 h-4" strokeWidth={2} />
-                Generate Flashcards
-              </>
-            )}
+            {generating ? "Generating..." : "Generate Flashcards"}
           </button>
         </div>
       );
@@ -250,13 +226,12 @@ const FlashcardManager = ({ documentId }) => {
 
     return (
       <div className="space-y-6">
-        {/* Header with Generate Button */}
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-lg font-semibold text-slate-900">
               Your Flashcard Sets
             </h3>
-            <p className="text-sm text-slate-500 mt-1">
+            <p className="text-sm text-slate-500">
               {flashcardSets.length}{" "}
               {flashcardSets.length === 1 ? "set" : "sets"} available
             </p>
@@ -264,61 +239,44 @@ const FlashcardManager = ({ documentId }) => {
           <button
             onClick={handleGenerateFlashcards}
             disabled={generating}
-            className="group inline-flex items-center gap-2 px-5 h-11 bg-linear-to-r from-emerald-500 to-teal-500 hover:to-teal-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-emerald-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+            className="flex items-center gap-2 px-5 h-11 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl transition-all"
           >
-            {generating ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating...
-              </>
-            ) : (
-              <>
-                <Plus className="w-4 h-4" strokeWidth={2.5} />
-                Generate New Set
-              </>
-            )}
+            <Plus className="w-4 h-4" />
+            New Set
           </button>
         </div>
 
-        {/* Flashcard Sets Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {flashcardSets.map((set) => (
             <div
               key={set._id}
               onClick={() => handleSelectSet(set)}
-              className="group relativebg-white/80 backdrop-blur-xl border-slate-200 hover:border-emerald-300 rounded-2xl p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/10"
+              className="group relative bg-white border border-slate-200 hover:border-emerald-300 rounded-2xl p-10 cursor-pointer transition-all hover:shadow-lg flex flex-col min-h-[280px] justify-center"
             >
-              {/* Delete Button */}
-              <button onClick={(e) => handleDeleteRequest(e, set)} className="">
-                <Trash2
-                  className="absolute top-4 right-4 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all duration-200 opacity-8 group-hover:opacity-100"
-                  strokeWidth={2}
-                />
-                <Trash2 className="w-4 h-4" strokeWidth={2} />
+              {/* FIXED DELETE BUTTON */}
+              <button
+                onClick={(e) => handleDeleteRequest(e, set)}
+                className="absolute top-4 right-4 z-20 p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+              >
+                <Trash2 className="w-5 h-5" strokeWidth={2} />
               </button>
 
-              {/* Set Content */}
               <div className="space-y-4">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-emerald-100 to-teal-100">
-                  <Brain className="w-6 h-6 text-emerald-600" strokeWidth={2} />
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                  <Brain className="w-6 h-6 text-emerald-600" />
                 </div>
-
                 <div>
-                  <h4 className="text-base font-semibold text-slate-900 mb-1">
+                  <h4 className="text-base font-semibold text-slate-900">
                     Flashcard Set
                   </h4>
-                  <p className="text-xs font-medium text-slate-500  uppercase tracking-wide">
+                  <p className="text-xs text-slate-500">
                     Created {moment(set.createdAt).format("MMM D, YYYY")}
                   </p>
                 </div>
-
-                <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
-                  <div className="px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-lg">
-                    <span className="text-sm font-semibold text-emerald-700">
-                      {set.cards.length}{" "}
-                      {set.cards.length === 1 ? "card" : "cards"}
-                    </span>
-                  </div>
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="inline-block px-3 py-1 bg-emerald-50 text-emerald-700 text-sm font-semibold rounded-lg">
+                    {set.cards.length} cards
+                  </span>
                 </div>
               </div>
             </div>
@@ -330,11 +288,10 @@ const FlashcardManager = ({ documentId }) => {
 
   return (
     <>
-      <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-3xl shadow-xl shadow-slate-200/50 p-8">
+      <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 rounded-3xl p-8">
         {selectedSet ? renderFlashcardViewer() : renderSetList()}
       </div>
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -342,31 +299,21 @@ const FlashcardManager = ({ documentId }) => {
       >
         <div className="space-y-6">
           <p className="text-sm text-slate-600">
-            Are you sure you want to delete this flashcard set? This action
-            cannot be undone and all cards will be permanently removed.
+            Are you sure? This action cannot be undone.
           </p>
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex justify-end gap-3">
             <button
-              type="button"
               onClick={() => setIsDeleteModalOpen(false)}
-              disabled={deleting}
-              className="px-5 h-11 bg-slate-100 hover:bg-slate-100 text-slate-700 font-medium text-sm rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 h-11 bg-slate-100 rounded-xl text-sm font-medium"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirmDelete}
               disabled={deleting}
-              className="px-5 h-11 bg-linear-to-r from-rose-500 to-red-500 hover:from-rose-600 hover:to-red-600 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-rose-500/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100"
+              className="px-5 h-11 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-xl transition-all"
             >
-              {deleting ? (
-                <span className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Deleting...
-                </span>
-              ) : (
-                "Delete Set"
-              )}
+              {deleting ? "Deleting..." : "Delete Set"}
             </button>
           </div>
         </div>

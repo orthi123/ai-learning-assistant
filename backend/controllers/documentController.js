@@ -60,7 +60,7 @@ export const uploadDocument = async (req, res, next) => {
   }
 };
 
-// Helper function to process PDF logic
+// Helper function to process PDF logic (web e read korar jonno)
 const processPDF = async (documentId, filePath) => {
   try {
     console.log(`\n>>> STARTING: ${documentId}`);

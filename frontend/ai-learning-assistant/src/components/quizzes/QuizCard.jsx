@@ -6,7 +6,7 @@ import moment from "moment";
 const QuizCard = ({ quiz, onDelete }) => {
   return (
     <div className="group relative bg-white/80 backdrop-blur-xl border-2 border-slate-200 hover:border-emerald-200 rounded-2xl p-4 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-500/10 flex flex-col justify-between">
-      <button 
+      <button
         onClick={(e) => {
           e.stopPropagation();
           onDelete(quiz);
@@ -26,7 +26,10 @@ const QuizCard = ({ quiz, onDelete }) => {
         </div>
 
         <div>
-          <h3 className="text-base font-semibold text-slate-900 mb-1 line-clamp-2" title={quiz.title}>
+          <h3
+            className="text-base font-semibold text-slate-900 mb-1 line-clamp-2"
+            title={quiz.title}
+          >
             {quiz.title ||
               `Quiz - ${moment(quiz.createdAt).format("MMM D, YYYY")}`}
           </h3>

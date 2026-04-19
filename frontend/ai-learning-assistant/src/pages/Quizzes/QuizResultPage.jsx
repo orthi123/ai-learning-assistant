@@ -182,7 +182,7 @@ const QuizResultPage = () => {
                 >
                   {isCorrect ? (
                     <CheckCircle2
-                      className="e-5 h-5 text-emerald-600"
+                      className="w-5 h-5 text-emerald-600"
                       strokeWidth={2.5}
                     />
                   ) : (

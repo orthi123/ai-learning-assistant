@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose";//Object Data modelling,,connect mongodb with nodejs
 
 const connectDB = async () => {
   try {
@@ -6,8 +6,8 @@ const connectDB = async () => {
     console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {
     console.error(`Error connecting to MongoDB: ${error.message}`);
-    process.exit(1);
+    process.exit(1);//process na hole uncaught fatal expection
   }
 };
 
-export default connectDB;
+export default connectDB; //server.js jaate paay

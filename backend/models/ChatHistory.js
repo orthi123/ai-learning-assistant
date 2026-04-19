@@ -39,7 +39,7 @@ const chatHistorySchema = new mongoose.Schema(
   },
 );
 
-// Index for faster queries
+// Index for faster queries(ager chat paay easily)----------
 chatHistorySchema.index({ userId: 1, documentId: 1 });
 
 const ChatHistory = mongoose.model('ChatHistory', chatHistorySchema);
